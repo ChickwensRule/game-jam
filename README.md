@@ -20,3 +20,10 @@ To run the game:
 
 `python3 main.py` or `python main.py`
 
+## Adding Words
+
+Feel free to add new words to the list, but don't go over 10 characters or there will be some visual glitches.
+
+#### Valid characters:
+- **A-Z** (caps only)
+- Space

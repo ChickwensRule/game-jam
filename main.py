@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
             end_msg.setText("You have successfully gotten revenge by messing up their run! They'll never touch your soldering iron again! Congratulations!")
         else:
             end_msg.setIcon(QMessageBox.Icon.Critical)
-            end_msg.setText(f"You were caught and got shot {randint(2, 8)} times! Try again!")
+            end_msg.setText(f"You were caught and got shot {randint(2, 8)} times! Try again! The word was: {self.sidebar.current_word.word}")
 
         end_msg.exec()
 

@@ -29,8 +29,6 @@ class Control(QWidget):
 
         self.setLayout(self.layout)
 
-        self.setFixedWidth(500)
-
 
 
 
@@ -79,22 +77,22 @@ class Guesses(QLabel):
                 background: %s;
                 padding: 10px;
 
-                color: black;
-                font: 15px;
+                color: %s;
+                font: bold 15px;
             }
-        """ % Color.white)
+        """ % (Color.white, Color.dark_blue))
         
         self.setWordWrap(True)
 
         self.guesses = []
 
     def update(self):
-        self.setText(", ".join(self.guesses))
+        self.setText(f"{', '.join(self.guesses)} ({len(self.guesses)}/5)")
 
     
 
 class Button(QPushButton):
-    def __init__(self, text, size=(30,30)):
+    def __init__(self, text):
         super().__init__(text)
 
         self.setStyleSheet("""
@@ -111,7 +109,7 @@ class Button(QPushButton):
             }
         """ % (Color.orange, Color.white))
 
-        self.setFixedSize(size[0], size[1])
+        self.setFixedSize(25, 25)
         # self.clicked.connect(self.clicked_event)
 
 

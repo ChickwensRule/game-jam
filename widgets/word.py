@@ -6,10 +6,19 @@ from util import Color
 class Word(QWidget):
     def __init__(self, word):
         super().__init__()
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+        # self.setStyleSheet("""
+        #     QWidget {
+
+        #     }
+        # """)
 
         self.word = word
 
         self.layout = QHBoxLayout()
+
+        self.layout.addStretch()
 
         for v in word:
             if v != " ":
@@ -18,6 +27,8 @@ class Word(QWidget):
                 widget = QWidget()
                 widget.setFixedWidth(20)
                 self.layout.addWidget(widget)
+
+        self.layout.addStretch()
 
         self.setLayout(self.layout)
         
@@ -33,10 +44,11 @@ class Letter(QLabel):
                 background: %s;
                 padding: 8px;
                 border-radius: 8px;
-
+                
+                color: %s;
                 font: bold 20px;
             }
-        """ % Color.white)
+        """ % (Color.white, Color.dark_blue))
 
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setFixedWidth(30)

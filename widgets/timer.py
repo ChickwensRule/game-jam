@@ -6,7 +6,7 @@ from util import Color
 
 class Timer(QLabel):
     def __init__(self, parent):
-        super().__init__("2:00")
+        super().__init__("5:00")
 
         self.parent = parent
 
@@ -21,7 +21,7 @@ class Timer(QLabel):
             }
         """ % (Color.dark_blue, Color.white))
 
-        self.time = 120
+        self.time = 300
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_timer)

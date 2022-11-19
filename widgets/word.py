@@ -31,6 +31,8 @@ class Word(QWidget):
         self.layout.addStretch()
 
         self.setLayout(self.layout)
+
+    
         
 
 class Letter(QLabel):

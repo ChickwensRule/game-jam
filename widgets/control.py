@@ -20,7 +20,7 @@ class Control(QWidget):
 
         self.keys = Keyboard(self)
         
-        self.guesses = Guesses()
+        self.guesses = Guesses(self)
 
         self.layout = QVBoxLayout()
 
@@ -28,8 +28,6 @@ class Control(QWidget):
         self.layout.addWidget(self.guesses)
 
         self.setLayout(self.layout)
-
-
 
 
 class Keyboard(QWidget):
@@ -50,27 +48,12 @@ class Keyboard(QWidget):
         self.layout.setSpacing(5)
         self.setLayout(self.layout)
 
-    # def clicked_event(self, button):
-    #     button = self.sender()
-
-    #     button.setStyleSheet("""
-    #         QPushButton {
-    #             background: #A65300;
-    #             border-radius: 5px;
-
-    #             color: %s;
-    #             font: bold 20px;
-    #         }
-    #     """ % Color.white)
-
-    #     button.setDisabled(True)
-
-    #     self.parent.guesses.guesses.append(button.text())
-    #     self.parent.guesses.update()
 
 class Guesses(QLabel):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+
+        self.parent = parent
 
         self.setStyleSheet("""
             QLabel {
@@ -88,6 +71,9 @@ class Guesses(QLabel):
 
     def update(self):
         self.setText(f"{', '.join(self.guesses)} ({len(self.guesses)}/5)")
+
+        if len(self.guesses) == 5:
+            self.parent.parent.parent.game_over(False)
 
     
 

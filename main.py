@@ -1,21 +1,20 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PyQt6.QtGui import QPainter, QColor, QImage
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox
+from PyQt6.QtGui import QPainter, QColor, QPixmap, QIcon, QImage
 from PyQt6.QtCore import Qt, QRect, QTimer
 
 from random import choice, randint
 from time import sleep
 
-from widgets import control, word
+from widgets import control, word, timer
 from util import Color
 
 import threading
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setMinimumSize(1000,700)
+        self.setFixedSize(1000,700)
 
         self.setStyleSheet("""
             QMainWindow {
@@ -23,13 +22,21 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        self.sidebar = SideBar()
+        self.sidebar = SideBar(self)
+        self.timer = timer.Timer(self)
+
+        self.timer_frame = QWidget()
+        self.timer_frame.layout = QVBoxLayout()
+        self.timer_frame.layout.addWidget(self.timer)
+        self.timer_frame.layout.addStretch()
+        self.timer_frame.setLayout(self.timer_frame.layout)
 
         self.frame = QWidget()
 
         self.frame.layout = QHBoxLayout()
         self.frame.layout.addWidget(self.sidebar)
-        self.frame.layout.addWidget(QWidget(), 2000)
+        self.frame.layout.addStretch(1)
+        self.frame.layout.addWidget(self.timer_frame)
 
         self.frame.layout.setContentsMargins(0,0,0,0)
         self.frame.setLayout(self.frame.layout)
@@ -38,105 +45,85 @@ class MainWindow(QMainWindow):
 
 
         self.ocean = QRect(0,200,1000,500)
-        self.rov = QRect(600, 700-550, 480, 270)
+        self.rov = QRect(550, 110, 320, 180)
 
         self.last = (1, 1)
-        # 1, 1: 1, -1: -1, 1: -1, -1
+        self.moving = True
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update)
-        self.timer.start(300)
-            # self.update()
-            # sleep(1)
+        self.tick = QTimer(self)
+        self.tick.timeout.connect(self.update)
+        self.tick.start(300)
 
-        self.lower_ocean()
+    def game_over(self, win):
+        self.timer.timer.stop()
+
+        for v in self.sidebar.controls.keys.children():
+            try:
+                v.setDisabled(True)
+            except AttributeError as e:
+                continue
+
+        end_msg = QMessageBox()
+
+        if win:
+            end_msg.setIcon(QMessageBox.Icon.Information)
+            end_msg.setText("You have successfully gotten revenge by messing up their run! They'll never touch your soldering iron again! Congratulations!")
+        else:
+            end_msg.setIcon(QMessageBox.Icon.Critical)
+            end_msg.setText(f"You were caught and got shot {randint(2, 8)} times! Try again!")
+
+        end_msg.exec()
+
 
     def lower_ocean(self):
-        self.ocean.translate(0,200)
+        letters = set("".join(self.sidebar.current_word.word.split()))
+        y_change = 480//len(letters)
+
+        self.ocean.translate(0, y_change)
+
+        if self.rov.y() + y_change > 550:
+            self.rov.moveBottom(720)
+            self.moving = False
+            
+            self.game_over(True)
+        else: 
+            self.rov.translate(0, y_change)
+        
 
     def paintEvent(self, e):
         painter = QPainter()
         painter.begin(self)
 
-        if self.last == (1,1):
-            self.last = (1, -1)
-        elif self.last == (1, -1):
-            self.last = (-1, 1)
-        elif self.last == (-1, 1):
-            self.last = (-1, -1)
-        else:
-            self.last = (1,1)
+        painter.fillRect(0,190,1000,10, QColor(Color.white))
+        painter.fillRect(0,200,1000,500, QColor("#E0E0E0")) ##### 
+
+        if self.moving:
+            if self.last == (1,1):
+                self.last = (1, -1)
+            elif self.last == (1, -1):
+                self.last = (-1, 1)
+            elif self.last == (-1, 1):
+                self.last = (-1, -1)
+            else:
+                self.last = (1,1)
         
-        self.rov.translate(self.last[0]*2, self.last[1]*2)
+            self.rov.translate(self.last[0]*3, self.last[1]*3)
 
-        self.rov.translate(0, 1)
-
-        painter.drawImage(self.rov, QImage('assets/rov2.png'))
-        # self.rov.move
-
-        # self.rov.translate(100, 100)
-
-        # t = threading.Thread(target=lambda x: self.move_rov(painter))
-        # t.start()
-
-
-        # timer = QTimer(self)
-        # timer.timeout.connect(lambda: self.move_rov(painter))
-        # timer.start(1000)
-
-        # self.move_rov()
-
-
+        painter.drawPixmap(self.rov, QPixmap('assets/rov.png'))
 
         painter.setOpacity(0.5)
 
-        # self.ocean = QRect(0,200,1000,500)
-
-        self.ocean.translate(0, 1)
-
         painter.fillRect(self.ocean, QColor(Color.blue))
 
-        # self.ocean.tra
-
         painter.end()
-        # self.drawBezierCurve(qp)
-        # qp.end()
-
-    # def move_rov(self, painter):
-    # #     # # while True:
-    #     # self.rotation += 5
-    # #     #     # self.rov = self.rov.transformed(QTransform().rotate(self.rotation))
-
-    # #     #     # painter.drawPixmap(600, 700-500, int(self.rov.width()/4), int(self.rov.height()/4), self.rov)
-    # #     self.ocean.translate(0, 10)#, Qt.TransformationMode.SmoothTransformation)
-    # #     #     # self.rov.translate(10,0)
-    # #     #     # sleep(1)
-    #     print(1)
-
-    #     painter.eraseRect(self.rov)
-
-    #     self.rov.translate(20, 0)
-    #     # # painter.update()
-    #     painter.drawImage(self.rov, QImage('assets/rov2.png'))
-
-
-    # def drawBezierCurve(self, qp):
-    
-    #     path = QPainterPath()
-    #     path.moveTo(30, 30)
-    #     path.cubicTo(30, 30, 200, 350, 350, 30)
-
-    #     qp.drawPath(path)
-
-## 
-
-
 
 
 class SideBar(QWidget):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+        self.parent = parent
 
         self.setStyleSheet("""
             QWidget {
@@ -149,17 +136,25 @@ class SideBar(QWidget):
         with open('words.txt', 'r') as f:
             words = [v.rstrip() for v in f.readlines()]
             self.current_word = word.Word(choice(words))
-            print(words)
+
+
+        pixmap = QPixmap('assets/main.png')
+        self.image = QLabel()
+        
+        self.image.setPixmap(pixmap)
+
+        self.image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.controls = control.Control(self)
+        
 
         self.layout = QVBoxLayout()
 
         self.layout.addWidget(self.current_word)
         self.layout.addStretch()
+        self.layout.addWidget(self.image)
         self.layout.addWidget(self.controls)
 
-        # self.layout.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout)
 
     def clicked_event(self):
@@ -185,6 +180,8 @@ class SideBar(QWidget):
                     font: bold 20px;
                 }
             """ % Color.white)
+
+            self.parent.lower_ocean()
         else:
             button.setStyleSheet("""
                 QPushButton {
@@ -197,7 +194,6 @@ class SideBar(QWidget):
             """ % Color.white)
 
             self.controls.guesses.guesses.append(button.text())
-            print(self.controls.guesses.guesses)
             self.controls.guesses.update()
 
 
@@ -207,7 +203,5 @@ if __name__ == '__main__':
 
     window = MainWindow()
     window.show()
-
-    print(window.size())
 
     app.exec()

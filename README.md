@@ -22,7 +22,7 @@ To run the game:
 
 ## Adding Words
 
-Feel free to add new words to the list, but don't go over 10 characters or there will be some visual glitches.
+Feel free to add new words to the `words.txt` list, but don't go over 10 characters per word or there will be some visual glitches. Words are separated by newlines (\n).
 
 #### Valid characters:
 - **A-Z** (caps only)
